@@ -1,0 +1,2 @@
+#!/bin/sh
+bun supabase gen types typescript --project-id [supabase-project-id] > ./src/db/database.types.ts

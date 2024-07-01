@@ -108,10 +108,7 @@ export default function EmailForm() {
 						</FormItem>
 					)}
 				/>
-				<Button
-					disabled={loading || !form.formState.isValid}
-					className='w-full'
-					type='submit'>
+				<Button disabled={loading} className='w-full' type='submit'>
 					{loading ? 'Loading...' : 'Submit'}
 				</Button>
 			</form>

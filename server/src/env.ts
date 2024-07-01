@@ -8,6 +8,10 @@ const envSchema = z.object({
 		.transform((v) => parseInt(v)),
 	EMAIL_SERVER_USER: z.string(),
 	EMAIL_SERVER_PASSWORD: z.string(),
+	DATABASE_URL: z.string(),
+	SUPABASE_URL: z.string(),
+	SUPABASE_KEY: z.string(),
+	NODE_ENV: z.string(),
 });
 
 const results = envSchema.safeParse(Bun.env);
