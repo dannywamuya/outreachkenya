@@ -2,6 +2,16 @@ import nodemailer from 'nodemailer';
 import type Mail from 'nodemailer/lib/mailer';
 import env from '../env';
 import { supabase } from '../db';
+import otpGenerator from 'otp-generator';
+
+export function generateOtp() {
+	return otpGenerator.generate(6, {
+		upperCaseAlphabets: true,
+		digits: true,
+		specialChars: false,
+		lowerCaseAlphabets: false,
+	});
+}
 
 const transport = nodemailer.createTransport({
 	host: env.EMAIL_SERVER_HOST,
@@ -12,82 +22,66 @@ const transport = nodemailer.createTransport({
 	},
 });
 
+export async function createOTP(email: string) {
+	try {
+		await supabase.from('email_otps').delete().eq('email', email);
+
+		const otp = generateOtp();
+
+		const { error } = await supabase.from('email_otps').insert({ email, otp });
+
+		if (error) {
+			throw new Error('Error storing OTP: ' + error.message);
+		}
+
+		await transport.sendMail({
+			to: email,
+			from: env.EMAIL_FROM,
+			subject: 'Your OTP Code',
+			text: `Your OTP code is ${otp}`,
+		});
+
+		return { message: 'OTP sent. Please verify to proceed.' };
+	} catch (error: any) {
+		throw new Error('Error generating OTP: ' + error.message);
+	}
+}
+
 export async function sendEmail({
 	to,
 	from,
 	subject,
 	html,
 	text,
-}: Mail.Options) {
-	const oneWeekAgo = new Date();
-	oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+	otp,
+}: Mail.Options & { otp: string }) {
+	try {
+		const { data, error } = await supabase
+			.from('email_otps')
+			.select('otp')
+			.eq('email', `${from}`)
+			.limit(1);
 
-	const { data, error } = await supabase
-		.from('sent_emails')
-		.select('to')
-		.eq('from', from as string)
-		.gte('sent_at', oneWeekAgo.toISOString());
+		if (error || !data || data.length === 0) {
+			throw new Error('Error verifying OTP: ' + error?.message);
+		}
 
-	if (error) {
-		console.error('Error fetching sent emails:', error);
-		return;
-	}
+		if (data[0].otp !== otp) {
+			throw new Error('Invalid OTP');
+		}
 
-	const sentEmailAddresses = new Set(data.map(({ to }) => to));
-
-	const newRecipients = (to as string[]).filter(
-		(email) => !sentEmailAddresses.has(email)
-	);
-
-	const queuedRecipients = (to as string[]).filter((email) =>
-		sentEmailAddresses.has(email)
-	);
-
-	if (newRecipients.length > 0) {
-		await transport.sendMail({
-			to: newRecipients,
+		const res = await transport.sendMail({
+			to,
 			from,
 			subject,
 			html,
 			text,
 		});
 
-		const sentEmails = newRecipients.map((email) => ({
-			to: email,
-			from: from as string,
-			subject: subject as string,
-			html: html as string,
-			text: text as string,
-		}));
+		await supabase.from('email_otps').delete().eq('email', `${from}`);
 
-		const { error: insertError } = await supabase
-			.from('sent_emails')
-			.insert(sentEmails);
-
-		if (insertError) {
-			console.error('Error inserting sent emails:', insertError);
-		} else {
-			console.log('Email sent and tracked for new recipients');
-		}
-	}
-
-	if (queuedRecipients.length > 0) {
-		const queuedEmails = queuedRecipients.map((email) => ({
-			to: email,
-			from: from as string,
-			subject: subject as string,
-			html: html as string,
-			text: text as string,
-		}));
-
-		const { error: insertError } = await supabase
-			.from('queued_emails')
-			.insert(queuedEmails);
-
-		if (insertError) {
-			console.error('Error inserting queued emails:', insertError);
-		} else {
-			console.log('Email added to queue');
-		}
+		return res;
+	} catch (error: any) {
+		throw new Error('Error sending email: ' + error.message);
 	}
 }

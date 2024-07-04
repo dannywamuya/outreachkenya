@@ -12,6 +12,7 @@ const envSchema = z.object({
 	SUPABASE_URL: z.string(),
 	SUPABASE_KEY: z.string(),
 	NODE_ENV: z.string(),
+	EMAIL_FROM: z.string(),
 });
 
 const results = envSchema.safeParse(Bun.env);

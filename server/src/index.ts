@@ -1,7 +1,7 @@
 import './env';
 import { Elysia, t } from 'elysia';
 import { cors } from '@elysiajs/cors';
-import { sendEmail } from './lib/email';
+import { createOTP, sendEmail } from './lib/email';
 import { rateLimit } from 'elysia-rate-limit';
 
 const app = new Elysia()
@@ -17,11 +17,28 @@ const app = new Elysia()
 				})
 			)
 			.post(
-				'/send',
-				async ({ set, body: { to, from, subject, html, text } }) => {
+				'/create_otp',
+				async ({ set, body: { email } }) => {
 					try {
-						await sendEmail({ to, from, subject, html, text });
-						return { success: true };
+						const { message } = await createOTP(email);
+						return { success: true, message };
+					} catch (error: any) {
+						set.status = 400;
+						return { success: false, error: error.message };
+					}
+				},
+				{
+					body: t.Object({
+						email: t.String(),
+					}),
+				}
+			)
+			.post(
+				'/send',
+				async ({ set, body }) => {
+					try {
+						const { accepted, rejected, pending } = await sendEmail(body);
+						return { success: true, data: { accepted, rejected, pending } };
 					} catch (error: any) {
 						set.status = 400;
 						return { success: false, error: error.message };
@@ -34,6 +51,7 @@ const app = new Elysia()
 						subject: t.String(),
 						html: t.String(),
 						text: t.String(),
+						otp: t.String(),
 					}),
 				}
 			)

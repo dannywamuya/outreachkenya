@@ -9,63 +9,21 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      queued_emails: {
+      email_otps: {
         Row: {
-          from: string
-          html: string
+          email: string
           id: number
-          queued_at: string
-          subject: string
-          text: string
-          to: string
+          otp: string
         }
         Insert: {
-          from: string
-          html: string
+          email: string
           id?: number
-          queued_at?: string
-          subject: string
-          text: string
-          to: string
+          otp: string
         }
         Update: {
-          from?: string
-          html?: string
+          email?: string
           id?: number
-          queued_at?: string
-          subject?: string
-          text?: string
-          to?: string
-        }
-        Relationships: []
-      }
-      sent_emails: {
-        Row: {
-          from: string
-          html: string
-          id: number
-          sent_at: string
-          subject: string
-          text: string
-          to: string
-        }
-        Insert: {
-          from: string
-          html: string
-          id?: number
-          sent_at?: string
-          subject: string
-          text: string
-          to: string
-        }
-        Update: {
-          from?: string
-          html?: string
-          id?: number
-          sent_at?: string
-          subject?: string
-          text?: string
-          to?: string
+          otp?: string
         }
         Relationships: []
       }
