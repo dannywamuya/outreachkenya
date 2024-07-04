@@ -9,54 +9,38 @@ const mockResults: SearchResult[] = [
 		email: 'john.doe@example.com',
 		organisation: 'Human Rights Org',
 		position: 'Director',
-		image: 'https://via.placeholder.com/250',
 	},
 	{
 		firstName: 'Jane',
 		lastName: 'Smith',
 		email: 'jane.smith@example.com',
 		organisation: 'Justice League',
-		position: 'Coordinator',
-		image: 'https://via.placeholder.com/150',
 	},
 	{
 		firstName: 'John',
 		lastName: 'Doe',
 		email: 'john.doe@example.com',
-		organisation: 'Human Rights Org',
 		position: 'Director',
-		image: 'https://via.placeholder.com/250',
 	},
 	{
 		firstName: 'Jane',
 		lastName: 'Smith',
 		email: 'jane.smith@example.com',
-		organisation: 'Justice League',
-		position: 'Coordinator',
-		image: 'https://via.placeholder.com/150',
 	},
 	{
-		firstName: 'John',
-		lastName: 'Doe',
 		email: 'john.doe@example.com',
-		organisation: 'Human Rights Org',
+		organisation: 'Human Rights',
 		position: 'Director',
-		image: 'https://via.placeholder.com/250',
 	},
 	{
-		firstName: 'Jane',
-		lastName: 'Smith',
 		email: 'jane.smith@example.com',
-		organisation: 'Justice League',
-		position: 'Coordinator',
-		image: 'https://via.placeholder.com/150',
 	},
 ];
 
 export default function SearchResults() {
 	const [results] = useState<SearchResult[]>(mockResults);
 	return (
-		<div className='overflow-y-auto'>
+		<div className='overflow-y-auto '>
 			{results.map((result, index) => (
 				<SearchResultItem key={index} result={result} />
 			))}

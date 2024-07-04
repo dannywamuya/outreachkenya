@@ -7,7 +7,7 @@ import { add } from 'date-fns';
 
 export function generateOtp() {
 	return otpGenerator.generate(6, {
-		upperCaseAlphabets: true,
+		upperCaseAlphabets: false,
 		digits: true,
 		specialChars: false,
 		lowerCaseAlphabets: false,

@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Form, FormControl, FormField, FormItem, FormMessage } from './ui/form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,6 +27,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from './ui/dialog';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from './ui/input-otp';
 
 const formSchema = z.object({
 	to: z.array(z.string().email()).min(1, 'Add at least one email address'),
@@ -58,20 +59,6 @@ export default function EmailForm() {
 	const [loading, setLoading] = useState(false);
 	const [otpSent, setOtpSent] = useState(false);
 	const [key, setKey] = useState(0);
-
-	useEffect(() => {
-		let savedFormState: string | null = '';
-		if (typeof window !== 'undefined') {
-			savedFormState = localStorage.getItem('emailForm');
-			if (savedFormState) {
-				form.reset(JSON.parse(savedFormState));
-			}
-		}
-
-		form.watch((values) => {
-			localStorage.setItem('emailForm', JSON.stringify(values));
-		});
-	}, [form]);
 
 	async function sendOtp(email: string) {
 		setLoading(true);
@@ -213,9 +200,18 @@ export default function EmailForm() {
 										control={form.control}
 										name='otp'
 										render={({ field }) => (
-											<FormItem>
+											<FormItem className='w-full'>
 												<FormControl>
-													<Input placeholder='Enter OTP' {...field} />
+													<InputOTP className='w-full' {...field} maxLength={6}>
+														<InputOTPGroup className='w-full'>
+															<InputOTPSlot index={0} />
+															<InputOTPSlot index={1} />
+															<InputOTPSlot index={2} />
+															<InputOTPSlot index={3} />
+															<InputOTPSlot index={4} />
+															<InputOTPSlot index={5} />
+														</InputOTPGroup>
+													</InputOTP>
 												</FormControl>
 												<FormMessage />
 											</FormItem>

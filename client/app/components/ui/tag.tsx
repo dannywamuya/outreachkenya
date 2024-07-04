@@ -4,7 +4,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Badge } from './badge';
 import { Button } from '../ui/button';
 import { cn } from '../../lib/utils';
-import { Input, InputProps } from './input';
+import { InputProps } from './input';
+import SearchInput from './search-input';
+import SearchResults from '../SearchResults';
+import { toast } from './use-toast';
 
 type InputTagsProps = Omit<InputProps, 'value' | 'onChange'> & {
 	value: string[];
@@ -77,6 +80,7 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
 			if (pendingDataPoint) {
 				const newDataPoints = new Set([...value, pendingDataPoint]);
 				onChange(Array.from(newDataPoints));
+				toast({ title: `Added ${pendingDataPoint}` });
 				setPendingDataPoint('');
 			}
 		};
@@ -86,67 +90,77 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
 		}, [value]);
 
 		return (
-			<div
-				className={cn('relative flex items-center', className)}
-				ref={triggerContainerRef}>
-				<Popover open={isPopoverOpen} onOpenChange={handleOpenChange}>
-					<div
-						className={cn(
-							'flex w-full flex-wrap gap-2 text-sm  disabled:cursor-not-allowed disabled:opacity-50',
-							className
-						)}>
-						<Input
-							className='flex-1 outline-none placeholder:text-neutral-500 dark:placeholder:text-neutral-400'
-							value={pendingDataPoint}
-							onChange={(e) => setPendingDataPoint(e.target.value)}
-							onKeyDown={(e) => {
-								if (e.key === 'Enter' || e.key === ',') {
-									e.preventDefault();
-									addPendingDataPoint();
-								} else if (
-									e.key === 'Backspace' &&
-									pendingDataPoint.length === 0 &&
-									value.length > 0
-								) {
-									e.preventDefault();
-									onChange(value.slice(0, -1));
-								}
-							}}
-							{...props}
-							ref={ref}
-						/>
-						<PopoverTrigger asChild>
-							<Button
-								disabled={!value.length}
-								ref={triggerRef}
-								variant='outline'
-								size='icon'
-								className='bg-background rounded-2xl flex items-center justify-center'
-								onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
-								{value.length}
-							</Button>
-						</PopoverTrigger>
-					</div>
-					<PopoverContent
-						ref={popoverContentRef}
-						className='w-full space-y-3 space-x-2 max-h-[400px] overflow-y-auto'
-						style={{
-							width: `${popoverWidth}px`,
-						}}>
-						{value.map((item) => (
-							<Badge key={item} variant='secondary'>
-								{item}
+			<div>
+				<div
+					className={cn('relative flex items-center', className)}
+					ref={triggerContainerRef}>
+					<Popover open={isPopoverOpen} onOpenChange={handleOpenChange}>
+						<div
+							className={cn(
+								'flex w-full flex-wrap gap-2 text-sm  disabled:cursor-not-allowed disabled:opacity-50',
+								className
+							)}>
+							<SearchInput
+								className='flex-1 outline-none placeholder:text-neutral-500 dark:placeholder:text-neutral-400'
+								value={pendingDataPoint}
+								onChange={(e) => setPendingDataPoint(e.target.value)}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' || e.key === ',') {
+										e.preventDefault();
+										addPendingDataPoint();
+									} else if (
+										e.key === 'Backspace' &&
+										pendingDataPoint.length === 0 &&
+										value.length > 0
+									) {
+										e.preventDefault();
+										// onChange(value.slice(0, -1));
+									}
+								}}
+								{...props}
+								ref={ref}
+							/>
+							<PopoverTrigger asChild>
 								<Button
-									variant='ghost'
+									disabled={!value.length}
+									ref={triggerRef}
+									variant='outline'
 									size='icon'
-									className='ml-2 h-3 w-3'
-									onClick={() => {
-										onChange(value.filter((i) => i !== item));
-									}}>
-									<XIcon className='w-3' />
+									className='bg-background rounded-2xl flex items-center justify-center'
+									onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
+									{value.length}
 								</Button>
-							</Badge>
-						))}
+							</PopoverTrigger>
+						</div>
+						<PopoverContent
+							ref={popoverContentRef}
+							className='w-full space-y-3 space-x-2 max-h-[400px] overflow-y-auto'
+							style={{
+								width: `${popoverWidth}px`,
+							}}>
+							{value.map((item) => (
+								<Badge key={item} variant='secondary'>
+									{item}
+									<Button
+										variant='ghost'
+										size='icon'
+										className='ml-2 h-3 w-3'
+										onClick={() => {
+											onChange(value.filter((i) => i !== item));
+										}}>
+										<XIcon className='w-3' />
+									</Button>
+								</Badge>
+							))}
+						</PopoverContent>
+					</Popover>
+				</div>
+				<Popover open={true}>
+					<PopoverTrigger />
+					<PopoverContent
+						side='bottom'
+						className='absolute w-auto max-h-[50vh] overflow-auto p-0'>
+						<SearchResults />
 					</PopoverContent>
 				</Popover>
 			</div>
