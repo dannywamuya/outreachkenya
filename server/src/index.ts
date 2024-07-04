@@ -24,7 +24,7 @@ const app = new Elysia()
 						return { success: true, message };
 					} catch (error: any) {
 						set.status = 400;
-						return { success: false, error: error.message };
+						return { success: false, message: error.message };
 					}
 				},
 				{
@@ -38,10 +38,14 @@ const app = new Elysia()
 				async ({ set, body }) => {
 					try {
 						const { accepted, rejected, pending } = await sendEmail(body);
-						return { success: true, data: { accepted, rejected, pending } };
+						return {
+							success: true,
+							data: { accepted, rejected, pending },
+							message: 'Email was sent successfully',
+						};
 					} catch (error: any) {
 						set.status = 400;
-						return { success: false, error: error.message };
+						return { success: false, message: error.message };
 					}
 				},
 				{

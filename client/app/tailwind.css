@@ -51,11 +51,11 @@
 
 @layer base {
 	* {
-		@apply border-border custom-scrollbar;
+		@apply border-border custom-scrollbar fade-in;
 	}
 
 	body {
-		@apply bg-background text-foreground fade-in;
+		@apply bg-background text-foreground;
 	}
 }
 

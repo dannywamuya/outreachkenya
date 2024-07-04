@@ -12,16 +12,19 @@ export type Database = {
       email_otps: {
         Row: {
           email: string
+          expires_at: string
           id: number
           otp: string
         }
         Insert: {
           email: string
+          expires_at: string
           id?: number
           otp: string
         }
         Update: {
           email?: string
+          expires_at?: string
           id?: number
           otp?: string
         }

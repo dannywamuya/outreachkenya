@@ -1,11 +1,11 @@
 import { useForm } from 'react-hook-form';
+import { useEffect, useState } from 'react';
 import { Form, FormControl, FormField, FormItem, FormMessage } from './ui/form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { InputTags } from './ui/tag';
-import { useState } from 'react';
 import Editor from './Editor';
 import axios from 'axios';
 import { toast } from './ui/use-toast';
@@ -39,15 +39,39 @@ const formSchema = z.object({
 
 type EmailFormInput = z.TypeOf<typeof formSchema>;
 
+const defaultValues = {
+	from: '',
+	html: '',
+	otp: '',
+	subject: '',
+	text: '',
+	to: [],
+};
+
 export default function EmailForm() {
 	const form = useForm<EmailFormInput>({
 		resolver: zodResolver(formSchema),
 		mode: 'onChange',
-		defaultValues: { from: '', html: '', text: '', subject: '', to: [] },
+		defaultValues,
 	});
+
 	const [loading, setLoading] = useState(false);
 	const [otpSent, setOtpSent] = useState(false);
 	const [key, setKey] = useState(0);
+
+	useEffect(() => {
+		let savedFormState: string | null = '';
+		if (typeof window !== 'undefined') {
+			savedFormState = localStorage.getItem('emailForm');
+			if (savedFormState) {
+				form.reset(JSON.parse(savedFormState));
+			}
+		}
+
+		form.watch((values) => {
+			localStorage.setItem('emailForm', JSON.stringify(values));
+		});
+	}, [form]);
 
 	async function sendOtp(email: string) {
 		setLoading(true);
@@ -56,11 +80,15 @@ export default function EmailForm() {
 				email,
 			});
 			console.log(res.data);
-			toast({ title: 'An OTP has been sent to your email' });
+			toast({ title: res.data.message });
 			setOtpSent(true);
-		} catch (error) {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (error: any) {
 			console.log(error);
-			toast({ title: 'Error sending OTP' });
+			toast({
+				title:
+					error.response.data.message ?? 'Error sending OTP. Please try again',
+			});
 		}
 		setLoading(false);
 	}
@@ -70,19 +98,24 @@ export default function EmailForm() {
 		try {
 			const res = await axios.post('http://localhost:3000/send', data);
 			console.log(res.data);
-			toast({ title: 'Email sent successfully' });
-			form.reset();
+			toast({ title: res.data.message });
+			form.reset(defaultValues);
+			localStorage.setItem('emailForm', JSON.stringify(defaultValues));
 			setKey(key + 1);
 			setOtpSent(false);
-		} catch (error) {
-			console.log(error);
-			toast({ title: 'Error verifying OTP or sending email' });
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (error: any) {
+			toast({
+				title:
+					error.response.data.message ??
+					'Error sending email. Please try again',
+			});
 		}
 		setLoading(false);
 	}
 
 	async function onSubmit(data: EmailFormInput) {
-		if (!data.otp) {
+		if (!otpSent) {
 			await sendOtp(data.from);
 		} else {
 			await verifyOtpAndSendEmail(data);
@@ -158,7 +191,7 @@ export default function EmailForm() {
 							</FormItem>
 						)}
 					/>
-					{!otpSent ? (
+					{otpSent ? (
 						<>
 							<Dialog>
 								<DialogTrigger asChild className='hidden md:block'>
@@ -189,9 +222,9 @@ export default function EmailForm() {
 										)}
 									/>
 									<Button
-										type='submit'
+										type='button'
 										onClick={() => verifyOtpAndSendEmail(form.getValues())}
-										disabled={loading}>
+										disabled={loading || !form.getValues('otp')}>
 										{loading ? 'Loading...' : 'Verify & Send'}
 									</Button>
 								</DialogContent>
@@ -226,7 +259,10 @@ export default function EmailForm() {
 												</FormItem>
 											)}
 										/>
-										<Button type='submit' disabled={loading}>
+										<Button
+											type='button'
+											onClick={() => verifyOtpAndSendEmail(form.getValues())}
+											disabled={loading || !form.getValues('otp')}>
 											{loading ? 'Loading...' : 'Verify & Send'}
 										</Button>
 										<DrawerClose>
