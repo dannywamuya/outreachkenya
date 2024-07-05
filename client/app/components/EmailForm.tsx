@@ -169,7 +169,9 @@ export default function EmailForm() {
 							<FormItem>
 								<FormControl>
 									<InputTags
-										placeholder='To'
+										autoComplete='off'
+										placeholder='Search Email Addresses'
+										className='!bg-background'
 										{...field}
 										value={form.getValues('to')}
 										onChange={(c) => {

@@ -139,9 +139,9 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
 								<Button
 									disabled={!value.length}
 									ref={triggerRef}
-									variant='outline'
+									variant='shine'
 									size='icon'
-									className='bg-background rounded-2xl flex items-center justify-center'
+									className='rounded-full'
 									onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
 									{value.length}
 								</Button>
@@ -149,17 +149,18 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
 						</div>
 						<PopoverContent
 							ref={popoverContentRef}
-							className='w-full space-y-3 space-x-2 max-h-[400px] overflow-y-auto'
+							className='md:mr-0 mr-12 space-y-2 space-x-2 max-h-[400px] overflow-y-auto'
 							style={{
 								width: `${popoverWidth}px`,
 							}}>
 							<div className='w-full flex justify-end'>
 								<Button
+									iconPlacement='right'
+									variant='expandIcon'
+									Icon={() => <X className='h-4 w-4 ml-1' />}
 									onClick={() => onChange([])}
-									variant={'outline'}
-									className='h-6 w-fit text-xs text-destructive border-destructive/30 hover:bg-destructive/90 hover:text-destructive-foreground'>
+									className='h-6 w-fit text-xs bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-destructive-foreground'>
 									Clear
-									<X className='h-4 w-4 ml-1' />
 								</Button>
 							</div>
 							{value.map((item) => (
