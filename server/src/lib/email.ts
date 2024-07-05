@@ -106,6 +106,10 @@ export async function sendEmail({
 	otp,
 }: Mail.Options & { otp: string }) {
 	try {
+		// Check if 'to' email is a personal or non-organizational email
+		const recepients = (to as string[]).filter(isNotPersonal);
+
+		// Verify OTP
 		const { data, error } = await supabase
 			.from('email_otps')
 			.select('otp, expires_at')
@@ -128,18 +132,48 @@ export async function sendEmail({
 			throw new Error('Invalid OTP');
 		}
 
-		const res = await transport.sendMail({
-			to,
-			from,
-			subject,
-			html,
-			text,
-		});
+		if (recepients.length > 0) {
+			// Send email using transport (assuming transport is defined elsewhere)
+			const res = await transport.sendMail({
+				to: recepients,
+				from,
+				subject,
+				html,
+				text,
+			});
 
-		await deleteOtp(`${from}`);
+			recepients.forEach(async (email) => {
+				const { data } = await supabase
+					.from('search')
+					.select('count')
+					.eq('email', email);
 
-		return res;
+				if (!data || data.length === 0) {
+					await supabase.from('search').insert({ email, count: 1 });
+				} else {
+					await supabase
+						.from('search')
+						.update({ count: data[0].count + 1 })
+						.eq('email', email);
+				}
+			});
+			await deleteOtp(`${from}`);
+
+			return res;
+		}
+
+		return {
+			rejected: (to as string[]).filter((v) => !isNotPersonal(v)),
+			accepted: [],
+			pending: [],
+		};
 	} catch (error: any) {
 		throw new Error(error.message ?? 'Error sending email');
 	}
+}
+
+function isNotPersonal(email: string): boolean {
+	const domainsToFilter = ['gmail.com', 'yahoo.com', 'hotmail.com'];
+	const domain = email.split('@')[1];
+	return !domainsToFilter.includes(domain);
 }

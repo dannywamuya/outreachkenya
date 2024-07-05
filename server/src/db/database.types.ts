@@ -29,6 +29,7 @@ export type Database = {
       }
       search: {
         Row: {
+          count: number
           email: string
           first_name: string | null
           id: number
@@ -37,6 +38,7 @@ export type Database = {
           position: string | null
         }
         Insert: {
+          count?: number
           email: string
           first_name?: string | null
           id?: number
@@ -45,6 +47,7 @@ export type Database = {
           position?: string | null
         }
         Update: {
+          count?: number
           email?: string
           first_name?: string | null
           id?: number

@@ -4,4 +4,6 @@ export type SearchResult = {
 	email: string;
 	organisation?: string;
 	position?: string;
+	count: number;
+	heat: boolean;
 };

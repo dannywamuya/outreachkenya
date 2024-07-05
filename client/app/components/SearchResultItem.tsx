@@ -18,7 +18,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
 				<p className='truncate text-md font-medium'>
 					{result?.first_name} {result?.last_name}
 					{result.position ? (
-						<span className='text-sm text-muted-foreground'>
+						<span className='text-sm font-semibold text-muted-foreground'>
 							{' '}
 							({result?.position})
 						</span>
@@ -31,7 +31,15 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
 						</span>
 					) : null}
 				</p>
-				<p className='text-sm text-gray-600 truncate'>{result.email}</p>
+				<p className='text-sm text-gray-600 truncate'>
+					{result.email}{' '}
+					{result.count > 0 ? (
+						<strong>
+							{result.count.toLocaleString('en-US')}
+							{result.heat ? '🔥' : null}
+						</strong>
+					) : null}
+				</p>
 			</div>
 			<div>
 				<Button size={'icon'} variant={'outline'} onClick={addToForm}>

@@ -47,11 +47,15 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 	}, [query, value]);
 
 	const Searching = () => (
-		<button className='text-sm text-primary'>Searching...</button>
+		<button className='text-sm p-0 m-0 text-primary font-medium'>
+			Searching...
+		</button>
 	);
 
 	const ShowResults = () => (
-		<button className='text-sm text-primary' onClick={() => setOpen(true)}>
+		<button
+			className='text-sm p-0 m-0 text-primary hover:underline underline-offset-4 font-medium'
+			onClick={() => setOpen(true)}>
 			Search Results ({results.length})
 		</button>
 	);

@@ -27,6 +27,7 @@ import {
 	DialogTrigger,
 } from './ui/dialog';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from './ui/input-otp';
+import { ArrowRight } from 'lucide-react';
 
 const formSchema = z.object({
 	to: z.array(z.string().email()).min(1, 'Add at least one email address'),
@@ -160,7 +161,7 @@ export default function EmailForm() {
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
-					className='w-full h-full space-y-4 rounded-lg p-8 shadow-lg'>
+					className='w-full h-full space-y-4 rounded-lg p-8 shadow-lg fade-in'>
 					<FormField
 						control={form.control}
 						name='to'
@@ -229,6 +230,7 @@ export default function EmailForm() {
 							<Dialog>
 								<DialogTrigger asChild className='hidden md:block'>
 									<Button
+										variant={'shine'}
 										disabled={loading}
 										className='mt-auto w-full bottom-0'
 										type='button'>
@@ -274,6 +276,7 @@ export default function EmailForm() {
 												: 'Resend OTP'}
 										</Button>
 										<Button
+											variant={'shine'}
 											type='button'
 											onClick={() => verifyOtpAndSendEmail(form.getValues())}
 											disabled={loading || !form.getValues('otp')}>
@@ -286,6 +289,7 @@ export default function EmailForm() {
 							<Drawer>
 								<DrawerTrigger asChild className='block md:hidden'>
 									<Button
+										variant={'shine'}
 										disabled={loading}
 										className='mt-auto w-full bottom-0'
 										type='button'>
@@ -335,6 +339,7 @@ export default function EmailForm() {
 													: 'Resend OTP'}
 											</Button>
 											<Button
+												variant={'shine'}
 												type='button'
 												onClick={() => verifyOtpAndSendEmail(form.getValues())}
 												disabled={loading || !form.getValues('otp')}>
@@ -347,10 +352,13 @@ export default function EmailForm() {
 						</>
 					) : (
 						<Button
+							variant={'expandIcon'}
+							iconPlacement='right'
+							Icon={() => <ArrowRight className='h-5 w-5' />}
 							disabled={loading}
 							className='mt-auto w-full bottom-0'
 							type='submit'>
-							{loading ? 'Loading' : 'Send'}
+							{loading ? 'Loading' : 'Proceed'}
 						</Button>
 					)}
 				</form>

@@ -27,7 +27,7 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
 		useEffect(() => {
 			const handler = setTimeout(() => {
 				setQuery(pendingDataPoint);
-			}, 1000);
+			}, 500);
 
 			return () => {
 				clearTimeout(handler);
@@ -157,7 +157,7 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
 								<Button
 									onClick={() => onChange([])}
 									variant={'outline'}
-									className='h-6 w-fit text-xs text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground'>
+									className='h-6 w-fit text-xs text-destructive border-destructive/30 hover:bg-destructive/90 hover:text-destructive-foreground'>
 									Clear
 									<X className='h-4 w-4 ml-1' />
 								</Button>
