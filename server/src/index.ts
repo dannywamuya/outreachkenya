@@ -3,19 +3,20 @@ import { Elysia, t } from 'elysia';
 import { cors } from '@elysiajs/cors';
 import { createOTP, sendEmail } from './lib/email';
 import { rateLimit } from 'elysia-rate-limit';
+import searchEmails from './lib/search';
 
 const app = new Elysia()
 	.use(cors())
 	.get('/', () => 'Hello Elysia')
 	.group('', (app) =>
 		app
-			.use(
-				rateLimit({
-					duration: 60000,
-					max: 3,
-					errorResponse: 'Too Many Requests. Try again in 1 min',
-				})
-			)
+			// .use(
+			// 	rateLimit({
+			// 		duration: 60000,
+			// 		max: 3,
+			// 		errorResponse: 'Too Many Requests. Try again in 1 min',
+			// 	})
+			// )
 			.post(
 				'/create_otp',
 				async ({ set, body: { email } }) => {
@@ -58,6 +59,22 @@ const app = new Elysia()
 						otp: t.String(),
 					}),
 				}
+			)
+			.post(
+				'/search',
+				async ({ body: { query }, set }) => {
+					try {
+						const data = await searchEmails(query);
+						return {
+							success: true,
+							data,
+						};
+					} catch (error: any) {
+						set.status = 400;
+						return { success: false, message: error.message };
+					}
+				},
+				{ body: t.Object({ query: t.String() }) }
 			)
 	)
 	.listen(3000);

@@ -1,6 +1,6 @@
 export type SearchResult = {
-	firstName?: string;
-	lastName?: string;
+	first_name?: string;
+	last_name?: string;
 	email: string;
 	organisation?: string;
 	position?: string;

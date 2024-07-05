@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { XIcon } from 'lucide-react';
+import { X, XIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Badge } from './badge';
 import { Button } from '../ui/button';
@@ -22,6 +22,17 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
 		const triggerContainerRef = useRef<HTMLDivElement | null>(null);
 		const triggerRef = useRef<HTMLButtonElement | null>(null);
 		const popoverContentRef = useRef<HTMLDivElement | null>(null);
+		const [query, setQuery] = useState('');
+
+		useEffect(() => {
+			const handler = setTimeout(() => {
+				setQuery(pendingDataPoint);
+			}, 1000);
+
+			return () => {
+				clearTimeout(handler);
+			};
+		}, [pendingDataPoint]);
 
 		useEffect(() => {
 			const handleResize = () => {
@@ -85,6 +96,10 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
 			}
 		};
 
+		function addToForm(email: string) {
+			onChange(Array.from(new Set([...value, email])));
+		}
+
 		useEffect(() => {
 			if (value.length === 0) setIsPopoverOpen(false);
 		}, [value]);
@@ -138,6 +153,15 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
 							style={{
 								width: `${popoverWidth}px`,
 							}}>
+							<div className='w-full flex justify-end'>
+								<Button
+									onClick={() => onChange([])}
+									variant={'outline'}
+									className='h-6 w-fit text-xs text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground'>
+									Clear
+									<X className='h-4 w-4 ml-1' />
+								</Button>
+							</div>
 							{value.map((item) => (
 								<Badge key={item} variant='secondary'>
 									{item}
@@ -155,14 +179,7 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
 						</PopoverContent>
 					</Popover>
 				</div>
-				<Popover open={false}>
-					<PopoverTrigger />
-					<PopoverContent
-						side='bottom'
-						className='absolute w-auto max-h-[50vh] overflow-auto p-0'>
-						<SearchResults />
-					</PopoverContent>
-				</Popover>
+				<SearchResults query={query} addToForm={addToForm} value={value} />
 			</div>
 		);
 	}

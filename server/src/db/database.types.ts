@@ -27,6 +27,33 @@ export type Database = {
         }
         Relationships: []
       }
+      search: {
+        Row: {
+          email: string
+          first_name: string | null
+          id: number
+          last_name: string | null
+          organisation: string | null
+          position: string | null
+        }
+        Insert: {
+          email: string
+          first_name?: string | null
+          id?: number
+          last_name?: string | null
+          organisation?: string | null
+          position?: string | null
+        }
+        Update: {
+          email?: string
+          first_name?: string | null
+          id?: number
+          last_name?: string | null
+          organisation?: string | null
+          position?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
