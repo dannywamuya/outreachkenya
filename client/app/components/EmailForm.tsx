@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Form, FormControl, FormField, FormItem, FormMessage } from './ui/form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,7 +11,6 @@ import axios from 'axios';
 import { toast } from './ui/use-toast';
 import {
 	Drawer,
-	DrawerClose,
 	DrawerContent,
 	DrawerDescription,
 	DrawerFooter,
@@ -59,6 +58,50 @@ export default function EmailForm() {
 	const [loading, setLoading] = useState(false);
 	const [otpSent, setOtpSent] = useState(false);
 	const [key, setKey] = useState(0);
+	const [countdown, setCountdown] = useState(0);
+	const [isForceUpdated, setIsForceUpdated] = useState(false);
+
+	const forceUpdate = useCallback(() => {
+		if (!isForceUpdated) {
+			setKey(key + 1);
+			setIsForceUpdated(true);
+		}
+	}, [key, isForceUpdated]);
+
+	useEffect(() => {
+		const storedCountdown = localStorage.getItem('resendOtpCountdown');
+		if (storedCountdown) {
+			setCountdown(Number(storedCountdown));
+		}
+		forceUpdate();
+	}, [forceUpdate]);
+
+	// Load form state from localStorage
+	useEffect(() => {
+		const savedFormState = localStorage.getItem('emailForm');
+		if (savedFormState) {
+			form.reset(JSON.parse(savedFormState));
+		}
+
+		form.watch((values) =>
+			localStorage.setItem('emailForm', JSON.stringify(values))
+		);
+	}, [form]);
+
+	useEffect(() => {
+		if (countdown > 0) {
+			const timer = setInterval(() => {
+				setCountdown((prev) => {
+					const newCountdown = prev - 1;
+					localStorage.setItem('resendOtpCountdown', newCountdown.toString());
+					return newCountdown;
+				});
+			}, 1000);
+			return () => clearInterval(timer);
+		} else {
+			localStorage.removeItem('resendOtpCountdown');
+		}
+	}, [countdown]);
 
 	async function sendOtp(email: string) {
 		setLoading(true);
@@ -69,15 +112,21 @@ export default function EmailForm() {
 			console.log(res.data);
 			toast({ title: res.data.message });
 			setOtpSent(true);
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		} catch (error: any) {
+			setCountdown(60);
+		} catch (error) {
 			console.log(error);
 			toast({
-				title:
-					error.response.data.message ?? 'Error sending OTP. Please try again',
+				title: 'Error sending OTP. Please try again',
 			});
 		}
 		setLoading(false);
+	}
+
+	async function resendOtp() {
+		const email = form.getValues('from');
+		if (email) {
+			await sendOtp(email);
+		}
 	}
 
 	async function verifyOtpAndSendEmail(data: EmailFormInput) {
@@ -90,12 +139,9 @@ export default function EmailForm() {
 			localStorage.setItem('emailForm', JSON.stringify(defaultValues));
 			setKey(key + 1);
 			setOtpSent(false);
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		} catch (error: any) {
+		} catch (error) {
 			toast({
-				title:
-					error.response.data.message ??
-					'Error sending email. Please try again',
+				title: 'Error sending email. Please try again',
 			});
 		}
 		setLoading(false);
@@ -178,7 +224,7 @@ export default function EmailForm() {
 							</FormItem>
 						)}
 					/>
-					{otpSent ? (
+					{otpSent || countdown > 0 ? (
 						<>
 							<Dialog>
 								<DialogTrigger asChild className='hidden md:block'>
@@ -186,7 +232,7 @@ export default function EmailForm() {
 										disabled={loading}
 										className='mt-auto w-full bottom-0'
 										type='button'>
-										{loading ? 'Loading...' : 'Verify Email'}
+										{loading ? 'Loading' : 'Verify Email'}
 									</Button>
 								</DialogTrigger>
 								<DialogContent className='hidden md:block space-y-4'>
@@ -217,12 +263,23 @@ export default function EmailForm() {
 											</FormItem>
 										)}
 									/>
-									<Button
-										type='button'
-										onClick={() => verifyOtpAndSendEmail(form.getValues())}
-										disabled={loading || !form.getValues('otp')}>
-										{loading ? 'Loading...' : 'Verify & Send'}
-									</Button>
+									<div className='w-full flex justify-between'>
+										<Button
+											variant={'outline'}
+											type='button'
+											onClick={resendOtp}
+											disabled={loading || countdown > 0}>
+											{countdown > 0
+												? `Resend OTP in ${countdown}s`
+												: 'Resend OTP'}
+										</Button>
+										<Button
+											type='button'
+											onClick={() => verifyOtpAndSendEmail(form.getValues())}
+											disabled={loading || !form.getValues('otp')}>
+											{loading ? 'Loading' : 'Verify & Send'}
+										</Button>
+									</div>
 								</DialogContent>
 							</Dialog>
 
@@ -232,7 +289,7 @@ export default function EmailForm() {
 										disabled={loading}
 										className='mt-auto w-full bottom-0'
 										type='button'>
-										{loading ? 'Loading...' : 'Verify Email'}
+										{loading ? 'Loading' : 'Verify Email'}
 									</Button>
 								</DrawerTrigger>
 								<DrawerContent className='md:hidden block'>
@@ -249,23 +306,41 @@ export default function EmailForm() {
 											render={({ field }) => (
 												<FormItem>
 													<FormControl>
-														<Input placeholder='Enter OTP' {...field} />
+														<InputOTP
+															className='w-full'
+															{...field}
+															maxLength={6}>
+															<InputOTPGroup>
+																<InputOTPSlot index={0} />
+																<InputOTPSlot index={1} />
+																<InputOTPSlot index={2} />
+																<InputOTPSlot index={3} />
+																<InputOTPSlot index={4} />
+																<InputOTPSlot index={5} />
+															</InputOTPGroup>
+														</InputOTP>
 													</FormControl>
 													<FormMessage />
 												</FormItem>
 											)}
 										/>
-										<Button
-											type='button'
-											onClick={() => verifyOtpAndSendEmail(form.getValues())}
-											disabled={loading || !form.getValues('otp')}>
-											{loading ? 'Loading...' : 'Verify & Send'}
-										</Button>
-										<DrawerClose>
-											<Button variant='outline' className='w-full'>
-												Cancel
+										<div className='w-full flex justify-between'>
+											<Button
+												variant={'outline'}
+												type='button'
+												onClick={resendOtp}
+												disabled={loading || countdown > 0}>
+												{countdown > 0
+													? `Resend OTP in ${countdown}s`
+													: 'Resend OTP'}
 											</Button>
-										</DrawerClose>
+											<Button
+												type='button'
+												onClick={() => verifyOtpAndSendEmail(form.getValues())}
+												disabled={loading || !form.getValues('otp')}>
+												{loading ? 'Loading' : 'Verify & Send'}
+											</Button>
+										</div>
 									</DrawerFooter>
 								</DrawerContent>
 							</Drawer>
@@ -275,7 +350,7 @@ export default function EmailForm() {
 							disabled={loading}
 							className='mt-auto w-full bottom-0'
 							type='submit'>
-							{loading ? 'Loading...' : 'Send'}
+							{loading ? 'Loading' : 'Send'}
 						</Button>
 					)}
 				</form>

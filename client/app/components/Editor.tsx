@@ -185,7 +185,7 @@ const Editor = forwardRef<HTMLDivElement, EditorProps>(
 			editorProps: {
 				attributes: {
 					class:
-						'min-h-[25vh] w-full rounded-b-md bg-background border border-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 overflow-auto',
+						'min-h-[25vh] !fade-in !duration-500 fade-in w-full rounded-b-md bg-background border border-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 overflow-auto',
 				},
 			},
 			extensions: [

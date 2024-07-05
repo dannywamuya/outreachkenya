@@ -155,7 +155,7 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
 						</PopoverContent>
 					</Popover>
 				</div>
-				<Popover open={true}>
+				<Popover open={false}>
 					<PopoverTrigger />
 					<PopoverContent
 						side='bottom'
