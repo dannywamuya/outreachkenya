@@ -23,9 +23,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			<body>
 				<div className='absolute w-full right-0 flex justify-between md:justify-end py-4 px-8 items-center gap-4'>
 					<h1 className='font-bold text-2xl md:text-3xl'>
-						<span className='text-primary'>Reach</span>
 						<span className='text-black dark:text-white'>Out</span>
-						<span className='text-destructive'>Kenya</span>
+						<span className='text-[#922529]'>Reach</span>
+						<span className='text-[#008C51]'>Kenya</span>
 					</h1>
 					<ModeToggle />
 				</div>

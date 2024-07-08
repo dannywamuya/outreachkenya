@@ -136,10 +136,11 @@ export default function EmailForm() {
 			const res = await axios.post('http://localhost:3000/send', data);
 			console.log(res.data);
 			toast({ title: res.data.message });
-			form.reset(defaultValues);
-			localStorage.setItem('emailForm', JSON.stringify(defaultValues));
 			setKey(key + 1);
 			setOtpSent(false);
+			setCountdown(0);
+			form.reset(defaultValues);
+			localStorage.setItem('emailForm', JSON.stringify(defaultValues));
 		} catch (error) {
 			toast({
 				title: 'Error sending email. Please try again',

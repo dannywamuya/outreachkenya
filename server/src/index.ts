@@ -1,22 +1,23 @@
 import './env';
 import { Elysia, t } from 'elysia';
 import { cors } from '@elysiajs/cors';
-import { createOTP, sendEmail } from './lib/email';
+import { createOTP } from './services/otp';
 import { rateLimit } from 'elysia-rate-limit';
-import searchEmails from './lib/search';
+import searchEmails from './services/search';
+import { sendEmail } from './services/email';
 
 const app = new Elysia()
 	.use(cors())
 	.get('/', () => 'Hello Elysia')
 	.group('', (app) =>
 		app
-			// .use(
-			// 	rateLimit({
-			// 		duration: 60000,
-			// 		max: 3,
-			// 		errorResponse: 'Too Many Requests. Try again in 1 min',
-			// 	})
-			// )
+			.use(
+				rateLimit({
+					duration: 60000,
+					max: 3,
+					errorResponse: 'Too Many Requests. Try again in 1 min',
+				})
+			)
 			.post(
 				'/create_otp',
 				async ({ set, body: { email } }) => {
@@ -38,10 +39,10 @@ const app = new Elysia()
 				'/send',
 				async ({ set, body }) => {
 					try {
-						const { accepted, rejected, pending } = await sendEmail(body);
+						const data = await sendEmail(body);
 						return {
 							success: true,
-							data: { accepted, rejected, pending },
+							data,
 							message: 'Email was sent successfully',
 						};
 					} catch (error: any) {
@@ -57,6 +58,7 @@ const app = new Elysia()
 						html: t.String(),
 						text: t.String(),
 						otp: t.String(),
+						agreedToTerms: t.Boolean(),
 					}),
 				}
 			)

@@ -3,7 +3,7 @@ import EmailForm from '../components/EmailForm';
 
 export const meta: MetaFunction = () => {
 	return [
-		{ title: 'ReachOut Kenya' },
+		{ title: 'OutReachKenya' },
 		{
 			name: 'description',
 			content:
@@ -19,10 +19,12 @@ export default function Index() {
 				<EmailForm />
 			</div>
 			<div className='w-full md:w-1/2 rounded-md justify-start md:justify-end flex mt-12'>
-				<p>
-					Search through public email addresses and reach out for help and to
-					report injustice
-				</p>
+				<div className='w-full md:w-3/4 text-end'>
+					<p>
+						Search through public email addresses and reach out for help and to
+						report injustice
+					</p>
+				</div>
 			</div>
 		</main>
 	);
