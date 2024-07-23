@@ -14,7 +14,33 @@ const app = new Elysia()
 			.use(
 				rateLimit({
 					duration: 60000,
-					max: 3,
+					max: 100,
+					errorResponse: 'Too Many Requests. Try again in 1 min',
+				})
+			)
+			.post(
+				'/search',
+				async ({ body: { query }, set }) => {
+					try {
+						const data = await searchEmails(query);
+						return {
+							success: true,
+							data,
+						};
+					} catch (error: any) {
+						set.status = 400;
+						return { success: false, message: error.message };
+					}
+				},
+				{ body: t.Object({ query: t.String() }) }
+			)
+	)
+	.group('', (app) =>
+		app
+			.use(
+				rateLimit({
+					duration: 60000,
+					max: 5,
 					errorResponse: 'Too Many Requests. Try again in 1 min',
 				})
 			)
@@ -61,22 +87,6 @@ const app = new Elysia()
 						agreedToTerms: t.Boolean(),
 					}),
 				}
-			)
-			.post(
-				'/search',
-				async ({ body: { query }, set }) => {
-					try {
-						const data = await searchEmails(query);
-						return {
-							success: true,
-							data,
-						};
-					} catch (error: any) {
-						set.status = 400;
-						return { success: false, message: error.message };
-					}
-				},
-				{ body: t.Object({ query: t.String() }) }
 			)
 	)
 	.listen(3000);

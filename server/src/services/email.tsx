@@ -2,7 +2,9 @@ import Email from '../../emails/Email';
 import { supabase } from '../db';
 import { deleteOtp } from './otp';
 import { isNotPersonal } from '../lib/personalProviders';
-import { resend } from '../lib/resend';
+import transport from '../lib/nodemailer';
+import { render } from '@react-email/components';
+import React from 'react';
 
 interface SendEmailInput {
 	to: string[];
@@ -53,7 +55,7 @@ export async function sendEmail({
 			throw new Error('Invalid OTP');
 		}
 
-		const recipients = (to as string[]).filter(isNotPersonal);
+		const recipients = to.filter(isNotPersonal);
 
 		const emailTasks = recipients.map(async (email) => {
 			try {
@@ -65,21 +67,19 @@ export async function sendEmail({
 
 				const found = searchData?.email ? true : false;
 
-				const { error: emailError } = await resend.emails.send({
-					from,
+				await transport.sendMail({
 					to: email,
+					from,
 					subject,
-					react: Email({ html, found, deleteEmail: '', subject }),
+					html: render(
+						<Email deleteEmail='' found={found} html={html} subject={subject} />
+					),
 					text: `${text} ${
 						found
 							? `Your email was found in our database. Please click here if you would like to delete it ${'link'}`
 							: ''
 					}`,
 				});
-
-				if (emailError) {
-					throw new Error(`Failed to send: ${emailError.message}`);
-				}
 
 				return { status: 'sent', email };
 			} catch (emailError: any) {

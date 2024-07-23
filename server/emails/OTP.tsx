@@ -19,10 +19,12 @@ const baseUrl = '';
 export const OTP = ({ otp }: OTPProps) => (
 	<Html>
 		<Head />
-		<Preview>Log in with this magic link</Preview>
+		<Preview>
+			Outreach OTP ({otp}). Copy and paste this temporary one time password
+		</Preview>
 		<Body style={main}>
 			<Container style={container}>
-				<Heading style={h1}>Your OTP</Heading>
+				<Heading style={h1}>Outreach OTP [{otp}]</Heading>
 				<Text style={{ ...text, marginBottom: '14px' }}>
 					Copy and paste this temporary one time password:
 				</Text>

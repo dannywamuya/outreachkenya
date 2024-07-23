@@ -14,7 +14,6 @@ const envSchema = z.object({
 	NODE_ENV: z.string(),
 	EMAIL_FROM: z.string(),
 	EMAIL_SECRET_KEY: z.string(),
-	RESEND_API_KEY: z.string(),
 });
 
 const results = envSchema.safeParse(Bun.env);

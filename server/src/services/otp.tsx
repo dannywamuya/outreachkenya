@@ -3,7 +3,9 @@ import { supabase } from '../db';
 import otpGenerator from 'otp-generator';
 import { add } from 'date-fns';
 import OTP from '../../emails/OTP';
-import { resend } from '../lib/resend';
+import transport from '../lib/nodemailer';
+import { render } from '@react-email/components';
+import React from 'react';
 
 export function generateOtp() {
 	return otpGenerator.generate(6, {
@@ -42,17 +44,13 @@ export async function createOTP(email: string) {
 			throw new Error('Error storing OTP: ' + error.message);
 		}
 
-		const { error: emailError } = await resend.emails.send({
+		await transport.sendMail({
 			from: env.EMAIL_FROM,
 			to: email,
 			subject: 'Your OTP',
-			react: OTP({ otp }),
 			text: getText(otp),
+			html: render(<OTP otp={otp} />),
 		});
-
-		if (emailError) {
-			throw new Error(`Failed to send OTP: ${emailError.message}`);
-		}
 
 		return { message: 'OTP sent. Please verify to proceed.' };
 	} catch (error: any) {

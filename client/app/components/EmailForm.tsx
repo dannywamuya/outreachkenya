@@ -1,6 +1,14 @@
 import { useForm } from 'react-hook-form';
 import { useState, useEffect, useCallback } from 'react';
-import { Form, FormControl, FormField, FormItem, FormMessage } from './ui/form';
+import {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from './ui/form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from './ui/input';
@@ -28,6 +36,8 @@ import {
 } from './ui/dialog';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from './ui/input-otp';
 import { ArrowRight } from 'lucide-react';
+import { Link } from '@remix-run/react';
+import { Checkbox } from './ui/checkbox';
 
 const formSchema = z.object({
 	to: z.array(z.string().email()).min(1, 'Add at least one email address'),
@@ -36,6 +46,7 @@ const formSchema = z.object({
 	text: z.string().min(1, 'Email is too short'),
 	html: z.string().min(1, 'Email is too short'),
 	otp: z.string().optional(),
+	agreedToTerms: z.boolean().default(true),
 });
 
 type EmailFormInput = z.TypeOf<typeof formSchema>;
@@ -47,6 +58,7 @@ const defaultValues = {
 	subject: '',
 	text: '',
 	to: [],
+	agreedToTerms: true,
 };
 
 export default function EmailForm() {
@@ -240,7 +252,7 @@ export default function EmailForm() {
 										{loading ? 'Loading' : 'Verify Email'}
 									</Button>
 								</DialogTrigger>
-								<DialogContent className='hidden md:block space-y-4'>
+								<DialogContent className='hidden md:block space-y-6'>
 									<DialogHeader>
 										<DialogTitle>Enter OTP</DialogTitle>
 										<DialogDescription>
@@ -253,7 +265,7 @@ export default function EmailForm() {
 										render={({ field }) => (
 											<FormItem className='w-full'>
 												<FormControl>
-													<InputOTP className='w-full' {...field} maxLength={6}>
+													<InputOTP className='w-ful' {...field} maxLength={6}>
 														<InputOTPGroup className='w-full'>
 															<InputOTPSlot index={0} />
 															<InputOTPSlot index={1} />
@@ -265,6 +277,31 @@ export default function EmailForm() {
 													</InputOTP>
 												</FormControl>
 												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name='agreedToTerms'
+										render={({ field }) => (
+											<FormItem className='flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4'>
+												<FormControl>
+													<Checkbox
+														checked={field.value}
+														onCheckedChange={field.onChange}
+													/>
+												</FormControl>
+												<div className='space-y-1 leading-none'>
+													<FormLabel>Accept terms and conditions</FormLabel>
+													<FormDescription>
+														You agree to our{' '}
+														<Link
+															to={'/'}
+															className='text-blue-500 underline underline-offset-2'>
+															Terms of Service.
+														</Link>
+													</FormDescription>
+												</div>
 											</FormItem>
 										)}
 									/>
@@ -306,7 +343,7 @@ export default function EmailForm() {
 											Please enter the OTP sent to your email.
 										</DrawerDescription>
 									</DrawerHeader>
-									<DrawerFooter>
+									<DrawerFooter className='space-y-6'>
 										<FormField
 											control={form.control}
 											name='otp'
@@ -328,6 +365,31 @@ export default function EmailForm() {
 														</InputOTP>
 													</FormControl>
 													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
+											name='agreedToTerms'
+											render={({ field }) => (
+												<FormItem className='flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4'>
+													<FormControl>
+														<Checkbox
+															checked={field.value}
+															onCheckedChange={field.onChange}
+														/>
+													</FormControl>
+													<div className='space-y-1 leading-none'>
+														<FormLabel>Accept terms and conditions</FormLabel>
+														<FormDescription>
+															You agree to our{' '}
+															<Link
+																to={'/'}
+																className='text-blue-500 underline underline-offset-2'>
+																Terms of Service.
+															</Link>
+														</FormDescription>
+													</div>
 												</FormItem>
 											)}
 										/>
@@ -359,7 +421,7 @@ export default function EmailForm() {
 							iconPlacement='right'
 							Icon={() => <ArrowRight className='h-5 w-5' />}
 							disabled={loading}
-							className='mt-auto w-full bottom-0'
+							className='mt-auto w-full bottom-0 shine'
 							type='submit'>
 							{loading ? 'Loading' : 'Proceed'}
 						</Button>
