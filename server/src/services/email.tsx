@@ -16,7 +16,53 @@ interface SendEmailInput {
 	agreedToTerms: boolean;
 }
 
-export async function sendEmail({
+async function verifyOtp(from: string, otp: string) {
+	const { data: otpData, error: otpError } = await supabase
+		.from('email_otps')
+		.select('otp, expires_at')
+		.eq('email', from)
+		.limit(1)
+		.single();
+
+	if (otpError || !otpData) {
+		throw new Error('Error verifying OTP');
+	}
+
+	const { otp: storedOtp, expires_at: expiresAt } = otpData;
+
+	if (new Date() > new Date(expiresAt)) {
+		await deleteOtp(from);
+		throw new Error('OTP has expired. Please try again');
+	}
+
+	if (storedOtp !== otp) {
+		await deleteOtp(from);
+		throw new Error('Invalid OTP');
+	}
+}
+
+async function send(
+	email: string,
+	from: string,
+	subject: string,
+	html: string,
+	text: string
+) {
+	try {
+		await transport.sendMail({
+			to: email,
+			from,
+			subject,
+			html: render(<Email html={html} subject={subject} />),
+			text,
+		});
+		return { status: 'sent', email };
+	} catch (emailError: any) {
+		return { status: 'error', email, error: emailError.message };
+	}
+}
+
+export async function sendEmails({
 	to,
 	from,
 	subject,
@@ -32,59 +78,12 @@ export async function sendEmail({
 			);
 		}
 
-		const { data: otpData, error: otpError } = await supabase
-			.from('email_otps')
-			.select('otp, expires_at')
-			.eq('email', from)
-			.limit(1)
-			.single();
-
-		if (otpError || !otpData) {
-			throw new Error('Error verifying OTP');
-		}
-
-		const { otp: storedOtp, expires_at: expiresAt } = otpData;
-
-		if (new Date() > new Date(expiresAt)) {
-			await deleteOtp(from);
-			throw new Error('OTP has expired. Please try again');
-		}
-
-		if (storedOtp !== otp) {
-			await deleteOtp(from);
-			throw new Error('Invalid OTP');
-		}
+		await verifyOtp(from, otp);
 
 		const recipients = to.filter(isNotPersonal);
 
 		const emailTasks = recipients.map(async (email) => {
-			try {
-				const { data: searchData } = await supabase
-					.from('search')
-					.select('email')
-					.eq('email', email)
-					.single();
-
-				const found = searchData?.email ? true : false;
-
-				await transport.sendMail({
-					to: email,
-					from,
-					subject,
-					html: render(
-						<Email deleteEmail='' found={found} html={html} subject={subject} />
-					),
-					text: `${text} ${
-						found
-							? `Your email was found in our database. Please click here if you would like to delete it ${'link'}`
-							: ''
-					}`,
-				});
-
-				return { status: 'sent', email };
-			} catch (emailError: any) {
-				return { status: 'error', email, error: emailError.message };
-			}
+			return await send(email, from, subject, html, text);
 		});
 
 		const results = await Promise.all(emailTasks);

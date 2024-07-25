@@ -1,32 +1,32 @@
 {
-  "name": "justice-for-x-server",
-  "version": "1.0.50",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts",
-    "gentypes": "./gentypes.sh",
-    "email": "email dev",
-    "export": "email export"
-  },
-  "dependencies": {
-    "@elysiajs/cors": "^1.0.2",
-    "@supabase/supabase-js": "^2.44.2",
-    "crypto": "^1.0.1",
-    "date-fns": "^3.6.0",
-    "dompurify": "^3.1.6",
-    "elysia": "latest",
-    "elysia-rate-limit": "^4.1.0",
-    "nodemailer": "^6.9.14",
-    "otp-generator": "^4.0.1",
-    "react-email": "2.1.1",
-    "resend": "^3.2.0",
-    "zod": "^3.23.8"
-  },
-  "devDependencies": {
-    "@types/dompurify": "^3.0.5",
-    "@types/nodemailer": "^6.4.15",
-    "@types/otp-generator": "^4.0.2",
-    "bun-types": "latest"
-  },
-  "module": "src/index.js"
+	"name": "outreach-kenya-server",
+	"version": "1.0.50",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "bun run --watch src/index.ts",
+		"gentypes": "./gentypes.sh",
+		"email": "email dev",
+		"export": "email export"
+	},
+	"dependencies": {
+		"@elysiajs/cors": "^1.0.2",
+		"@supabase/supabase-js": "^2.44.2",
+		"crypto": "^1.0.1",
+		"date-fns": "^3.6.0",
+		"dompurify": "^3.1.6",
+		"elysia": "latest",
+		"elysia-rate-limit": "^4.1.0",
+		"nodemailer": "^6.9.14",
+		"otp-generator": "^4.0.1",
+		"react-email": "2.1.1",
+		"resend": "^3.2.0",
+		"zod": "^3.23.8"
+	},
+	"devDependencies": {
+		"@types/dompurify": "^3.0.5",
+		"@types/nodemailer": "^6.4.15",
+		"@types/otp-generator": "^4.0.2",
+		"bun-types": "latest"
+	},
+	"module": "src/index.js"
 }

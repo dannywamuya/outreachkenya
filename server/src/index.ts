@@ -3,8 +3,8 @@ import { Elysia, t } from 'elysia';
 import { cors } from '@elysiajs/cors';
 import { createOTP } from './services/otp';
 import { rateLimit } from 'elysia-rate-limit';
-import searchEmails from './services/search';
-import { sendEmail } from './services/email';
+import { updateEmailCounts, searchEmails } from './services/search';
+import { sendEmails } from './services/email';
 
 const app = new Elysia()
 	.use(cors())
@@ -14,7 +14,7 @@ const app = new Elysia()
 			.use(
 				rateLimit({
 					duration: 60000,
-					max: 100,
+					max: 15,
 					errorResponse: 'Too Many Requests. Try again in 1 min',
 				})
 			)
@@ -65,7 +65,7 @@ const app = new Elysia()
 				'/send',
 				async ({ set, body }) => {
 					try {
-						const data = await sendEmail(body);
+						const data = await sendEmails(body);
 						return {
 							success: true,
 							data,
@@ -86,6 +86,17 @@ const app = new Elysia()
 						otp: t.String(),
 						agreedToTerms: t.Boolean(),
 					}),
+					async afterHandle(context) {
+						console.log(context.response);
+						const { success, data } = context.response as {
+							success: boolean;
+							data: Awaited<ReturnType<typeof sendEmails>>;
+						};
+
+						if (success) {
+							await updateEmailCounts(data.map(({ email }) => email));
+						}
+					},
 				}
 			)
 	)

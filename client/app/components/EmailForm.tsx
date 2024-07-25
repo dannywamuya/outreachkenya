@@ -1,14 +1,6 @@
 import { useForm } from 'react-hook-form';
-import { useState, useEffect, useCallback } from 'react';
-import {
-	Form,
-	FormControl,
-	FormDescription,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from './ui/form';
+import { useState, useEffect } from 'react';
+import { Form, FormControl, FormField, FormItem, FormMessage } from './ui/form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from './ui/input';
@@ -17,41 +9,12 @@ import { InputTags } from './ui/tag';
 import Editor from './Editor';
 import axios from 'axios';
 import { toast } from './ui/use-toast';
-import {
-	Drawer,
-	DrawerContent,
-	DrawerDescription,
-	DrawerFooter,
-	DrawerHeader,
-	DrawerTitle,
-	DrawerTrigger,
-} from './ui/drawer';
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from './ui/dialog';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from './ui/input-otp';
-import { ArrowRight } from 'lucide-react';
-import { Link } from '@remix-run/react';
-import { Checkbox } from './ui/checkbox';
+import { Send } from 'lucide-react';
+import OTPForm from './OTPForm';
+import { EmailFormInput, formSchema } from '../lib/schema';
+import Spinner from './Spinner';
 
-const formSchema = z.object({
-	to: z.array(z.string().email()).min(1, 'Add at least one email address'),
-	from: z.string().email(),
-	subject: z.string().min(1, 'Subject is too short').max(256),
-	text: z.string().min(1, 'Email is too short'),
-	html: z.string().min(1, 'Email is too short'),
-	otp: z.string().optional(),
-	agreedToTerms: z.boolean().default(true),
-});
-
-type EmailFormInput = z.TypeOf<typeof formSchema>;
-
-const defaultValues = {
+const defaultValues: EmailFormInput = {
 	from: '',
 	html: '',
 	otp: '',
@@ -72,24 +35,7 @@ export default function EmailForm() {
 	const [otpSent, setOtpSent] = useState(false);
 	const [key, setKey] = useState(0);
 	const [countdown, setCountdown] = useState(0);
-	const [isForceUpdated, setIsForceUpdated] = useState(false);
 
-	const forceUpdate = useCallback(() => {
-		if (!isForceUpdated) {
-			setKey(key + 1);
-			setIsForceUpdated(true);
-		}
-	}, [key, isForceUpdated]);
-
-	useEffect(() => {
-		const storedCountdown = localStorage.getItem('resendOtpCountdown');
-		if (storedCountdown) {
-			setCountdown(Number(storedCountdown));
-		}
-		forceUpdate();
-	}, [forceUpdate]);
-
-	// Load form state from localStorage
 	useEffect(() => {
 		const savedFormState = localStorage.getItem('emailForm');
 		if (savedFormState) {
@@ -106,13 +52,10 @@ export default function EmailForm() {
 			const timer = setInterval(() => {
 				setCountdown((prev) => {
 					const newCountdown = prev - 1;
-					localStorage.setItem('resendOtpCountdown', newCountdown.toString());
 					return newCountdown;
 				});
 			}, 1000);
 			return () => clearInterval(timer);
-		} else {
-			localStorage.removeItem('resendOtpCountdown');
 		}
 	}, [countdown]);
 
@@ -122,14 +65,14 @@ export default function EmailForm() {
 			const res = await axios.post('http://localhost:3000/create_otp', {
 				email,
 			});
-			console.log(res.data);
 			toast({ title: res.data.message });
 			setOtpSent(true);
 			setCountdown(60);
-		} catch (error) {
-			console.log(error);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (error: any) {
 			toast({
 				title: 'Error sending OTP. Please try again',
+				description: error.response.data.message ?? error.message,
 			});
 		}
 		setLoading(false);
@@ -146,16 +89,24 @@ export default function EmailForm() {
 		setLoading(true);
 		try {
 			const res = await axios.post('http://localhost:3000/send', data);
-			console.log(res.data);
 			toast({ title: res.data.message });
 			setKey(key + 1);
 			setOtpSent(false);
 			setCountdown(0);
 			form.reset(defaultValues);
 			localStorage.setItem('emailForm', JSON.stringify(defaultValues));
-		} catch (error) {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (error: any) {
+			if (error.response.status === 429) {
+				toast({
+					title: 'Error sending email. Please try again',
+					description: error.response.data,
+				});
+			}
+
 			toast({
 				title: 'Error sending email. Please try again',
+				description: error.response.data.message ?? error.message,
 			});
 		}
 		setLoading(false);
@@ -241,189 +192,22 @@ export default function EmailForm() {
 						)}
 					/>
 					{otpSent || countdown > 0 ? (
-						<>
-							<Dialog>
-								<DialogTrigger asChild className='hidden md:block'>
-									<Button
-										variant={'shine'}
-										disabled={loading}
-										className='mt-auto w-full bottom-0'
-										type='button'>
-										{loading ? 'Loading' : 'Verify Email'}
-									</Button>
-								</DialogTrigger>
-								<DialogContent className='hidden md:block space-y-6'>
-									<DialogHeader>
-										<DialogTitle>Enter OTP</DialogTitle>
-										<DialogDescription>
-											Please enter the OTP sent to your email.
-										</DialogDescription>
-									</DialogHeader>
-									<FormField
-										control={form.control}
-										name='otp'
-										render={({ field }) => (
-											<FormItem className='w-full'>
-												<FormControl>
-													<InputOTP className='w-ful' {...field} maxLength={6}>
-														<InputOTPGroup className='w-full'>
-															<InputOTPSlot index={0} />
-															<InputOTPSlot index={1} />
-															<InputOTPSlot index={2} />
-															<InputOTPSlot index={3} />
-															<InputOTPSlot index={4} />
-															<InputOTPSlot index={5} />
-														</InputOTPGroup>
-													</InputOTP>
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-									<FormField
-										control={form.control}
-										name='agreedToTerms'
-										render={({ field }) => (
-											<FormItem className='flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4'>
-												<FormControl>
-													<Checkbox
-														checked={field.value}
-														onCheckedChange={field.onChange}
-													/>
-												</FormControl>
-												<div className='space-y-1 leading-none'>
-													<FormLabel>Accept terms and conditions</FormLabel>
-													<FormDescription>
-														You agree to our{' '}
-														<Link
-															to={'/'}
-															className='text-blue-500 underline underline-offset-2'>
-															Terms of Service.
-														</Link>
-													</FormDescription>
-												</div>
-											</FormItem>
-										)}
-									/>
-									<div className='w-full flex justify-between'>
-										<Button
-											variant={'outline'}
-											type='button'
-											onClick={resendOtp}
-											disabled={loading || countdown > 0}>
-											{countdown > 0
-												? `Resend OTP in ${countdown}s`
-												: 'Resend OTP'}
-										</Button>
-										<Button
-											variant={'shine'}
-											type='button'
-											onClick={() => verifyOtpAndSendEmail(form.getValues())}
-											disabled={loading || !form.getValues('otp')}>
-											{loading ? 'Loading' : 'Verify & Send'}
-										</Button>
-									</div>
-								</DialogContent>
-							</Dialog>
-
-							<Drawer>
-								<DrawerTrigger asChild className='block md:hidden'>
-									<Button
-										variant={'shine'}
-										disabled={loading}
-										className='mt-auto w-full bottom-0'
-										type='button'>
-										{loading ? 'Loading' : 'Verify Email'}
-									</Button>
-								</DrawerTrigger>
-								<DrawerContent className='md:hidden block'>
-									<DrawerHeader>
-										<DrawerTitle>Enter OTP</DrawerTitle>
-										<DrawerDescription>
-											Please enter the OTP sent to your email.
-										</DrawerDescription>
-									</DrawerHeader>
-									<DrawerFooter className='space-y-6'>
-										<FormField
-											control={form.control}
-											name='otp'
-											render={({ field }) => (
-												<FormItem>
-													<FormControl>
-														<InputOTP
-															className='w-full'
-															{...field}
-															maxLength={6}>
-															<InputOTPGroup>
-																<InputOTPSlot index={0} />
-																<InputOTPSlot index={1} />
-																<InputOTPSlot index={2} />
-																<InputOTPSlot index={3} />
-																<InputOTPSlot index={4} />
-																<InputOTPSlot index={5} />
-															</InputOTPGroup>
-														</InputOTP>
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-										<FormField
-											control={form.control}
-											name='agreedToTerms'
-											render={({ field }) => (
-												<FormItem className='flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4'>
-													<FormControl>
-														<Checkbox
-															checked={field.value}
-															onCheckedChange={field.onChange}
-														/>
-													</FormControl>
-													<div className='space-y-1 leading-none'>
-														<FormLabel>Accept terms and conditions</FormLabel>
-														<FormDescription>
-															You agree to our{' '}
-															<Link
-																to={'/'}
-																className='text-blue-500 underline underline-offset-2'>
-																Terms of Service.
-															</Link>
-														</FormDescription>
-													</div>
-												</FormItem>
-											)}
-										/>
-										<div className='w-full flex justify-between'>
-											<Button
-												variant={'outline'}
-												type='button'
-												onClick={resendOtp}
-												disabled={loading || countdown > 0}>
-												{countdown > 0
-													? `Resend OTP in ${countdown}s`
-													: 'Resend OTP'}
-											</Button>
-											<Button
-												variant={'shine'}
-												type='button'
-												onClick={() => verifyOtpAndSendEmail(form.getValues())}
-												disabled={loading || !form.getValues('otp')}>
-												{loading ? 'Loading' : 'Verify & Send'}
-											</Button>
-										</div>
-									</DrawerFooter>
-								</DrawerContent>
-							</Drawer>
-						</>
+						<OTPForm
+							form={form}
+							verifyOtpAndSendEmail={verifyOtpAndSendEmail}
+							resendOtp={resendOtp}
+							loading={loading}
+							countdown={countdown}
+						/>
 					) : (
 						<Button
 							variant={'expandIcon'}
 							iconPlacement='right'
-							Icon={() => <ArrowRight className='h-5 w-5' />}
+							Icon={() => <Send className='h-4 w-4' />}
 							disabled={loading}
 							className='mt-auto w-full bottom-0 shine'
 							type='submit'>
-							{loading ? 'Loading' : 'Proceed'}
+							{loading ? <Spinner /> : 'Proceed'}
 						</Button>
 					)}
 				</form>

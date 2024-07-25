@@ -7,7 +7,7 @@ export const meta: MetaFunction = () => {
 		{
 			name: 'description',
 			content:
-				'ReachOut Kenya aims to assist Kenyans affected by the violence that occurred during the #RejectFinanceBill2024 and #RutoMustGo protests air their grievances to National and International Organisations',
+				'ReachOutKenya aims to assist Kenyans affected by the violence that occurred during the peaceful protests in Kenya air their grievances to National and International Organisations',
 		},
 	];
 };
@@ -15,14 +15,20 @@ export const meta: MetaFunction = () => {
 export default function Index() {
 	return (
 		<main className='font-sans p-8 h-full md:h-screen w-full flex flex-col-reverse md:flex-row gap-8'>
-			<div className='w-full lg:w-1/2 border rounded-md h-full mt-4 md:mt-0 flex flex-col items-center justify-center'>
+			<div className='w-full md:w-1/2 border rounded-md h-full mt-4 md:mt-0 flex flex-col items-center justify-center'>
 				<EmailForm />
 			</div>
 			<div className='w-full md:w-1/2 rounded-md justify-start md:justify-end flex mt-12'>
-				<div className='w-full md:w-3/4 text-end'>
+				<div className='w-full h-full flex flex-col md:w-3/4 md:text-end'>
 					<p>
 						Search through public email addresses and reach out for help and to
 						report injustice
+					</p>
+					<p className='italic mt-8 md:mt-24'>
+						{'"'}All sovereign power belongs to{' '}
+						<strong className='underline text-lg'>THE PEOPLE</strong> of Kenya
+						and <strong className='underline text-lg'>SHALL</strong> be
+						exercised only in accordance with this Constitution{'"'}
 					</p>
 				</div>
 			</div>

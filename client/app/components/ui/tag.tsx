@@ -129,7 +129,7 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
 										value.length > 0
 									) {
 										e.preventDefault();
-										// onChange(value.slice(0, -1));
+										onChange(value.slice(0, -1));
 									}
 								}}
 								{...props}
@@ -153,7 +153,8 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
 							style={{
 								width: `${popoverWidth}px`,
 							}}>
-							<div className='w-full flex justify-end'>
+							<div className='w-full px-4 py-2 items-center flex justify-between'>
+								<p className='text-sm'>{value.length} / 10</p>
 								<Button
 									iconPlacement='right'
 									variant='expandIcon'
@@ -169,11 +170,11 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
 									<Button
 										variant='ghost'
 										size='icon'
-										className='ml-2 h-3 w-3'
+										className='ml-2 h-4 w-4 hover:scale-110'
 										onClick={() => {
 											onChange(value.filter((i) => i !== item));
 										}}>
-										<XIcon className='w-3' />
+										<XIcon className='w-4 h-4' />
 									</Button>
 								</Badge>
 							))}

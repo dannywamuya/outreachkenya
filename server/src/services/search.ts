@@ -1,6 +1,6 @@
 import { supabase } from '../db';
 
-export default async function searchEmails(query: string) {
+export async function searchEmails(query: string) {
 	const { data, error } = await supabase
 		.from('search')
 		.select('*')
@@ -26,4 +26,43 @@ export default async function searchEmails(query: string) {
 	});
 
 	return resultsWithRating;
+}
+
+export async function updateEmailCounts(emails: string[]) {
+	const updates = emails.map(async (email) => {
+		const { data, error } = await supabase
+			.from('search')
+			.select('count')
+			.eq('email', email)
+			.single();
+
+		if (error && error.code !== 'PGRST116') {
+			console.error(`Error fetching count for ${email}:`, error);
+			return;
+		}
+
+		if (!data) {
+			const { error: updateError } = await supabase
+				.from('search')
+				.insert({ email, count: 1 })
+				.eq('email', email);
+
+			if (updateError) {
+				console.error(`Error updating count for ${email}:`, updateError);
+			}
+		} else {
+			const newCount = data.count + 1;
+
+			const { error: updateError } = await supabase
+				.from('search')
+				.update({ email, count: newCount })
+				.eq('email', email);
+
+			if (updateError) {
+				console.error(`Error updating count for ${email}:`, updateError);
+			}
+		}
+	});
+
+	await Promise.all(updates);
 }

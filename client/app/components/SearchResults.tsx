@@ -32,7 +32,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 							(v) => !new Set(value).has(v.email)
 						)
 					);
-					setOpen(true);
+					// setOpen(true);
 				} catch (error) {
 					console.error('Error fetching search results:', error);
 				} finally {
@@ -46,12 +46,6 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 		fetchData();
 	}, [query, value]);
 
-	const Searching = () => (
-		<button className='text-sm p-0 m-0 text-primary font-medium'>
-			Searching...
-		</button>
-	);
-
 	const ShowResults = () => (
 		<button
 			className='text-sm p-0 m-0 text-primary hover:underline underline-offset-4 font-medium'
@@ -62,7 +56,6 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 
 	return (
 		<>
-			{loading ? <Searching /> : null}
 			{!open && results.length > 0 && !loading ? <ShowResults /> : null}
 			<Popover open={open} onOpenChange={setOpen}>
 				<PopoverTrigger />
