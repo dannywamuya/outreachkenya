@@ -55,7 +55,7 @@ const AttachmentField = ({ form }: AttachmentFieldProps) => {
 				variant='secondary'
 				onClick={handleButtonClick}
 				size={'sm'}
-				className='text-sm ml-auto'>
+				className='text-sm h-8 p-2 md:ml-auto'>
 				<Paperclip className='h-4 w-4' />
 			</Button>
 
@@ -83,7 +83,7 @@ const AttachmentField = ({ form }: AttachmentFieldProps) => {
 			<div className='hidden md:block'>
 				<Dialog>
 					<DialogTrigger asChild>
-						<Button size={'sm'} variant={'secondary'}>
+						<Button size={'sm'} className='h-8 p-2' variant={'secondary'}>
 							({files.length})
 						</Button>
 					</DialogTrigger>
@@ -117,7 +117,7 @@ const AttachmentField = ({ form }: AttachmentFieldProps) => {
 			<div className='block md:hidden'>
 				<Drawer>
 					<DrawerTrigger asChild>
-						<Button size={'sm'} variant={'secondary'} className='h-8 w-8'>
+						<Button size={'sm'} variant={'secondary'} className='h-8 p-2'>
 							({files.length})
 						</Button>
 					</DrawerTrigger>
