@@ -9,10 +9,9 @@ OutReachKenya is an open-source web application aimed at empowering Kenyans to r
   - [Server](#server)
   - [Client](#client)
 - [Deployment](#deployment)
-  - [DIY](#diy)
 - [Styling](#styling)
 - [Contributing](#contributing)
-- [Terms of Use](#terms-of-use)
+- [Terms of Use](https://github.com/dannywamuya/outreachkenya/blob/main/TERMS_OF_USE.md)
 
 ## Getting Started
 
@@ -41,8 +40,6 @@ bun run dev
 ```
 
 ## Deployment
-
-### DIY
 
 If you're familiar with deploying Node applications, the built-in Remix app server is production-ready. Make sure to deploy the output of `npm run build`.
 

@@ -9,7 +9,7 @@ export function useTheme() {
 			const savedTheme = localStorage.getItem(THEME_KEY) as 'light' | 'dark';
 			return savedTheme ? savedTheme : 'light';
 		}
-		return 'light';
+		return 'dark';
 	});
 
 	useEffect(() => {

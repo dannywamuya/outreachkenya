@@ -2,7 +2,7 @@
 
 **Terms of Use**
 
-1. **Transparency**: This project is open source and can be self hosted. The code to this project can be accessed on Github
+1. **Transparency**: This project is open source and can be self hosted. The code to this project can be accessed on [Github](https://github.com/dannywamuya/outreachkenya)
 
 2. **Purpose**: This website provides resources for Kenyans to reach out to government bodies, international organizations, and human rights organizations to report human rights violations and other grievances.
 

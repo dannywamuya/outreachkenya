@@ -102,7 +102,9 @@ export default function OTPForm({
 									<FormDescription>
 										You agree to our{' '}
 										<Link
-											to={'/'}
+											target='_blank'
+											to={'https://github.com/dannywamuya/outreachkenya'}
+											rel='noreferrer'
 											className='text-blue-500 underline underline-offset-2'>
 											Terms of Service.
 										</Link>
@@ -185,7 +187,9 @@ export default function OTPForm({
 										<FormDescription>
 											You agree to our{' '}
 											<Link
-												to={'/'}
+												target='_blank'
+												to={'https://github.com/dannywamuya/outreachkenya'}
+												rel='noreferrer'
 												className='text-blue-500 underline underline-offset-2'>
 												Terms of Service.
 											</Link>

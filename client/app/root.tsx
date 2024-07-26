@@ -1,4 +1,5 @@
 import {
+	Link,
 	Links,
 	Meta,
 	Outlet,
@@ -13,7 +14,7 @@ import { useTheme } from './hooks/useTheme';
 export function Layout({ children }: { children: React.ReactNode }) {
 	const { theme } = useTheme();
 	return (
-		<html lang='en' className={theme === 'dark' ? 'dark' : ''}>
+		<html lang='en' className={theme === 'light' ? 'light' : ''}>
 			<head>
 				<meta charSet='utf-8' />
 				<meta name='viewport' content='width=device-width, initial-scale=1' />
@@ -27,6 +28,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
 						<span className='text-[#922529]'>Reach</span>
 						<span className='text-[#008C51]'>Kenya</span>
 					</h1>
+					<Link
+						target='_blank'
+						to={'https://github.com/dannywamuya/outreachkenya'}
+						rel='noreferrer'>
+						<img
+							src={'/github.svg'}
+							alt='Github Logo'
+							className='h-8 w-8 bg-white rounded-full border-2 border-white'
+						/>
+					</Link>
 					<ModeToggle />
 				</div>
 				{children}
