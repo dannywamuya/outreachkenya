@@ -28,17 +28,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
 						<span className='text-[#922529]'>Reach</span>
 						<span className='text-[#008C51]'>Kenya</span>
 					</h1>
-					<Link
-						target='_blank'
-						to={'https://github.com/dannywamuya/outreachkenya'}
-						rel='noreferrer'>
-						<img
-							src={'/github.svg'}
-							alt='Github Logo'
-							className='h-8 w-8 bg-white rounded-full border-2 border-white'
-						/>
-					</Link>
-					<ModeToggle />
+					<div className='flex items-center gap-4'>
+						<Link
+							target='_blank'
+							to={'https://github.com/dannywamuya/outreachkenya'}
+							rel='noreferrer'>
+							<img
+								src={'/github.svg'}
+								alt='Github Logo'
+								className='h-8 w-8 bg-white rounded-full border-2 border-white'
+							/>
+						</Link>
+						<ModeToggle />
+					</div>
 				</div>
 				{children}
 				<ScrollRestoration />

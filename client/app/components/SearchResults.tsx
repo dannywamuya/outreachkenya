@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import SearchResultItem from './SearchResultItem';
 import { SearchResult } from '../lib/types';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { request } from '../lib/axios';
 
 interface SearchResultsProps {
 	query: string;
@@ -24,7 +24,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 			if (query.length > 2) {
 				setLoading(true);
 				try {
-					const response = await axios.post('http://localhost:3000/search', {
+					const response = await request.post('search', {
 						query,
 					});
 					setResults(
