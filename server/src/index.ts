@@ -5,6 +5,22 @@ import { createOTP } from './services/otp';
 import { rateLimit } from 'elysia-rate-limit';
 import { updateEmailCounts, searchEmails } from './services/search';
 import { sendEmails } from './services/email';
+import { Value, ValueError } from '@sinclair/typebox/value';
+
+const emailSchema = t.Object({
+	to: t.Array(t.String()),
+	from: t.String(),
+	subject: t.String(),
+	html: t.String(),
+	text: t.String(),
+	otp: t.String(),
+	agreedToTerms: t.Boolean(),
+	files: t.Array(
+		t.File({
+			type: ['audio', 'video', 'image', 'application/pdf', 'text'],
+		})
+	),
+});
 
 const app = new Elysia()
 	.use(cors())
@@ -77,32 +93,33 @@ const app = new Elysia()
 					};
 
 					try {
-						const data = await sendEmails(transformedInput);
-						return {
-							success: true,
-							data,
-							message: 'Email was sent successfully',
-						};
+						const parsed = Value.Check(emailSchema, transformedInput);
+
+						if (parsed) {
+							const data = await sendEmails(transformedInput);
+							return {
+								success: true,
+								data,
+								message: 'Email was sent successfully',
+							};
+						} else {
+							const errors = Array.from(
+								Value.Errors(emailSchema, transformedInput)
+							);
+							set.status = 400;
+
+							return {
+								success: false,
+								message: 'Failed to send email',
+								errors,
+							};
+						}
 					} catch (error: any) {
 						set.status = 400;
 						return { success: false, message: error.message };
 					}
 				},
 				{
-					// body: t.Object({
-					// 	to: t.Array(t.String()),
-					// 	from: t.String(),
-					// 	subject: t.String(),
-					// 	html: t.String(),
-					// 	text: t.String(),
-					// 	otp: t.String(),
-					// 	agreedToTerms: t.Boolean(),
-					// 	files: t.Array(
-					// 		t.File({
-					// 			type: ['audio', 'video', 'image', 'application/pdf', 'text'],
-					// 		})
-					// 	),
-					// }),
 					body: t.Any(),
 					async afterHandle(context) {
 						const { success, data } = context.response as {

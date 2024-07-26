@@ -72,6 +72,7 @@ const AttachmentField = ({ form }: AttachmentFieldProps) => {
 								multiple
 								onChange={handleFileChange}
 								style={{ display: 'none' }}
+								accept='audio/*,video/*,image/*,application/pdf,text/*'
 							/>
 						</FormControl>
 						<FormMessage />
