@@ -6,7 +6,8 @@
 		"dev": "bun run --watch src/index.ts",
 		"gentypes": "./gentypes.sh",
 		"email": "email dev",
-		"export": "email export"
+		"export": "email export",
+		"start": "bun src/index.ts"
 	},
 	"dependencies": {
 		"@elysiajs/cors": "^1.0.2",
