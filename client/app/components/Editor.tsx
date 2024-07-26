@@ -31,6 +31,9 @@ import {
 } from './ui/dropdown-menu';
 import { forwardRef, useMemo, useState } from 'react';
 import DOMPurify from 'dompurify';
+import AttachmentField from './AttachmentFIeld';
+import { UseFormReturn } from 'react-hook-form';
+import { EmailFormInput } from '../lib/schema';
 
 interface HeadingCheckboxProps {
 	level: 1 | 2 | 3;
@@ -177,10 +180,11 @@ interface EditorProps {
 	disabled?: boolean;
 	value: string;
 	onChange: (value: { text: string; html: string }) => void;
+	form: UseFormReturn<EmailFormInput>;
 }
 
 const Editor = forwardRef<HTMLDivElement, EditorProps>(
-	({ disabled, name, value, onChange }, ref) => {
+	({ disabled, name, value, onChange, form }, ref) => {
 		const editor = useEditor({
 			editorProps: {
 				attributes: {
@@ -219,7 +223,7 @@ const Editor = forwardRef<HTMLDivElement, EditorProps>(
 
 		return (
 			<>
-				<EditorToolbar editor={editor} />
+				<EditorToolbar form={form} editor={editor} />
 				<EditorContent
 					ref={ref}
 					disabled={disabled}
@@ -232,7 +236,13 @@ const Editor = forwardRef<HTMLDivElement, EditorProps>(
 	}
 );
 
-const EditorToolbar = ({ editor }: { editor: EditorType }) => {
+const EditorToolbar = ({
+	editor,
+	form,
+}: {
+	editor: EditorType;
+	form: UseFormReturn<EmailFormInput>;
+}) => {
 	return (
 		<div className='border border-input rounded-t-md flex-wrap rounded-b-none border-b-0 p-1 flex flex-row items-center gap-1 bg-background'>
 			<Toggle
@@ -275,6 +285,7 @@ const EditorToolbar = ({ editor }: { editor: EditorType }) => {
 			</Toggle>
 			<DropdownMenuCheckboxes editor={editor} />
 			<DropdownMenuAlignments editor={editor} />
+			<AttachmentField form={form} />
 		</div>
 	);
 };

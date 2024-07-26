@@ -21,6 +21,7 @@ const defaultValues: EmailFormInput = {
 	subject: '',
 	text: '',
 	to: [],
+	attachments: [], // Add attachments to the default values
 	agreedToTerms: true,
 };
 
@@ -88,7 +89,31 @@ export default function EmailForm() {
 	async function verifyOtpAndSendEmail(data: EmailFormInput) {
 		setLoading(true);
 		try {
-			const res = await axios.post('http://localhost:3000/send', data);
+			const formData = new FormData();
+			// Append other fields
+			formData.append('html', data.html);
+			formData.append('text', data.text);
+			formData.append('from', data.from);
+			formData.append('subject', data.subject);
+			formData.append('agreedToTerms', data.agreedToTerms.toString());
+
+			// Append each recipient in the 'to' array
+			data.to.forEach((recipient, index) => {
+				formData.append(`to[${index}]`, recipient);
+			});
+
+			// Append each attachment file
+			data.attachments.forEach((file, index) => {
+				formData.append(`files[${index}]`, file);
+			});
+
+			// Append OTP if it exists
+			if (data.otp) {
+				formData.append('otp', data.otp);
+			}
+
+			const res = await axios.postForm('http://localhost:3000/send', formData);
+
 			toast({ title: res.data.message });
 			setKey(key + 1);
 			setOtpSent(false);
@@ -179,6 +204,7 @@ export default function EmailForm() {
 							<FormItem>
 								<FormControl>
 									<Editor
+										form={form}
 										key={key}
 										{...field}
 										onChange={({ html, text }) => {
@@ -201,6 +227,33 @@ export default function EmailForm() {
 						/>
 					) : (
 						<Button
+							// onClick={() => {
+							// 	const data = form.getValues();
+							// 	const formData = new FormData();
+							// 	// Append other fields
+							// 	formData.append('html', data.html);
+							// 	formData.append('text', data.text);
+							// 	formData.append('from', data.from);
+							// 	formData.append('subject', data.subject);
+							// 	formData.append('agreedToTerms', data.agreedToTerms.toString());
+
+							// 	// Append each recipient in the 'to' array
+							// 	data.to.forEach((recipient, index) => {
+							// 		formData.append(`to[${index}]`, recipient);
+							// 	});
+
+							// 	// Append each attachment file
+							// 	data.attachments.forEach((file, index) => {
+							// 		formData.append(`attachments[${index}]`, file);
+							// 	});
+
+							// 	// Append OTP if it exists
+							// 	if (data.otp) {
+							// 		formData.append('otp', data.otp);
+							// 	}
+
+							// 	console.log(Array.from(formData.values()));
+							// }}
 							variant={'expandIcon'}
 							iconPlacement='right'
 							Icon={() => <Send className='h-4 w-4' />}

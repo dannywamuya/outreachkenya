@@ -11,6 +11,7 @@ export const formSchema = z.object({
 	html: z.string().min(1, 'Email is too short'),
 	otp: z.string().optional(),
 	agreedToTerms: z.boolean().default(true),
+	attachments: z.array(z.any()),
 });
 
 export type EmailFormInput = z.TypeOf<typeof formSchema>;

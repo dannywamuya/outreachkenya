@@ -14,6 +14,7 @@ interface SendEmailInput {
 	html: string;
 	otp: string;
 	agreedToTerms: boolean;
+	files: File[];
 }
 
 async function verifyOtp(from: string, otp: string) {
@@ -46,7 +47,8 @@ async function send(
 	from: string,
 	subject: string,
 	html: string,
-	text: string
+	text: string,
+	files: File[]
 ) {
 	try {
 		await transport.sendMail({
@@ -55,6 +57,13 @@ async function send(
 			subject,
 			html: render(<Email html={html} subject={subject} />),
 			text,
+			attachments: await Promise.all(
+				files.map(async (file) => ({
+					filename: file.name,
+					contentType: file.type,
+					content: Buffer.from(await file.arrayBuffer()),
+				}))
+			),
 		});
 		return { status: 'sent', email };
 	} catch (emailError: any) {
@@ -70,6 +79,7 @@ export async function sendEmails({
 	text,
 	otp,
 	agreedToTerms,
+	files,
 }: SendEmailInput) {
 	try {
 		if (!agreedToTerms) {
@@ -83,7 +93,7 @@ export async function sendEmails({
 		const recipients = to.filter(isNotPersonal);
 
 		const emailTasks = recipients.map(async (email) => {
-			return await send(email, from, subject, html, text);
+			return await send(email, from, subject, html, text, files);
 		});
 
 		const results = await Promise.all(emailTasks);

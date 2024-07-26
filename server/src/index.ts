@@ -64,8 +64,20 @@ const app = new Elysia()
 			.post(
 				'/send',
 				async ({ set, body }) => {
+					const input = body as object as any;
+					const transformedInput = {
+						...input,
+						to: Object.keys(input)
+							.filter((key) => key.startsWith('to['))
+							.map((key) => input[key]),
+						files: Object.keys(input)
+							.filter((key) => key.startsWith('files['))
+							.map((key) => input[key]),
+						agreedToTerms: input.agreedToTerms === 'true',
+					};
+
 					try {
-						const data = await sendEmails(body);
+						const data = await sendEmails(transformedInput);
 						return {
 							success: true,
 							data,
@@ -77,17 +89,22 @@ const app = new Elysia()
 					}
 				},
 				{
-					body: t.Object({
-						to: t.Array(t.String()),
-						from: t.String(),
-						subject: t.String(),
-						html: t.String(),
-						text: t.String(),
-						otp: t.String(),
-						agreedToTerms: t.Boolean(),
-					}),
+					// body: t.Object({
+					// 	to: t.Array(t.String()),
+					// 	from: t.String(),
+					// 	subject: t.String(),
+					// 	html: t.String(),
+					// 	text: t.String(),
+					// 	otp: t.String(),
+					// 	agreedToTerms: t.Boolean(),
+					// 	files: t.Array(
+					// 		t.File({
+					// 			type: ['audio', 'video', 'image', 'application/pdf', 'text'],
+					// 		})
+					// 	),
+					// }),
+					body: t.Any(),
 					async afterHandle(context) {
-						console.log(context.response);
 						const { success, data } = context.response as {
 							success: boolean;
 							data: Awaited<ReturnType<typeof sendEmails>>;
