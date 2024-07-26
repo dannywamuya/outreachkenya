@@ -90,9 +90,7 @@ export async function sendEmails({
 
 		await verifyOtp(from, otp);
 
-		const recipients = to.filter(isNotPersonal);
-
-		const emailTasks = recipients.map(async (email) => {
+		const emailTasks = to.map(async (email) => {
 			return await send(email, from, subject, html, text, files);
 		});
 
