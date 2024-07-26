@@ -5,7 +5,8 @@ import { createOTP } from './services/otp';
 import { rateLimit } from 'elysia-rate-limit';
 import { updateEmailCounts, searchEmails } from './services/search';
 import { sendEmails } from './services/email';
-import { Value, ValueError } from '@sinclair/typebox/value';
+import { Value } from '@sinclair/typebox/value';
+import env from './env';
 
 const emailSchema = t.Object({
 	to: t.Array(t.String()),
@@ -134,8 +135,8 @@ const app = new Elysia()
 				}
 			)
 	)
-	.listen(3000);
+	.listen(env.PORT);
 
 console.log(
-	`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
+	`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port} (${env.NODE_ENV})`
 );

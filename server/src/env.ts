@@ -12,6 +12,10 @@ const envSchema = z.object({
 	SUPABASE_KEY: z.string(),
 	NODE_ENV: z.string(),
 	EMAIL_FROM: z.string(),
+	PORT: z
+		.string()
+		.refine((v) => !isNaN(parseInt(v)))
+		.transform((v) => parseInt(v)),
 });
 
 const results = envSchema.safeParse(Bun.env);
