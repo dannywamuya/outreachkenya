@@ -25,7 +25,7 @@ export const Email = ({ html, subject, from }: EmailProps) => (
 		<Preview>{subject}</Preview>
 		<Body style={main}>
 			<Container style={container}>
-				<SafeHTMLComponent html={`<p>From: ${from}</p>${html}`} />
+				<SafeHTMLComponent html={`${html}<p>From: ${from}</p>`} />
 			</Container>
 		</Body>
 	</Html>
