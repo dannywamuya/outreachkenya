@@ -41,16 +41,7 @@ export async function updateEmailCounts(emails: string[]) {
 			return;
 		}
 
-		if (!data) {
-			const { error: updateError } = await supabase
-				.from('search')
-				.insert({ email, count: 1 })
-				.eq('email', email);
-
-			if (updateError) {
-				console.error(`Error updating count for ${email}:`, updateError);
-			}
-		} else {
+		if (data) {
 			const newCount = data.count + 1;
 
 			const { error: updateError } = await supabase
