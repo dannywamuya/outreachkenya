@@ -7,7 +7,7 @@ export const meta: MetaFunction = () => {
 		{
 			name: 'description',
 			content:
-				'ReachOutKenya aims to assist Kenyans affected by the violence that occurred during the peaceful protests in Kenya air their grievances to National and International Organisations',
+				'ReachOutKenya aims to assist Kenyans in public participation and air their grievances to National and International Organisations',
 		},
 	];
 };
