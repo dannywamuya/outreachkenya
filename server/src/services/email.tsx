@@ -1,10 +1,10 @@
 import Email from '../../emails/Email';
 import { supabase } from '../db';
 import { deleteOtp } from './otp';
-import { isNotPersonal } from '../lib/personalProviders';
 import transport from '../lib/nodemailer';
 import { render } from '@react-email/components';
 import React from 'react';
+import env from '../env';
 
 interface SendEmailInput {
 	to: string[];
@@ -42,35 +42,6 @@ async function verifyOtp(from: string, otp: string) {
 	}
 }
 
-async function send(
-	email: string,
-	from: string,
-	subject: string,
-	html: string,
-	text: string,
-	files: File[]
-) {
-	try {
-		await transport.sendMail({
-			to: email,
-			from,
-			subject,
-			html: render(<Email html={html} subject={subject} />),
-			text,
-			attachments: await Promise.all(
-				files.map(async (file) => ({
-					filename: file.name,
-					contentType: file.type,
-					content: Buffer.from(await file.arrayBuffer()),
-				}))
-			),
-		});
-		return { status: 'sent', email };
-	} catch (emailError: any) {
-		return { status: 'error', email, error: emailError.message };
-	}
-}
-
 export async function sendEmails({
 	to,
 	from,
@@ -90,15 +61,24 @@ export async function sendEmails({
 
 		await verifyOtp(from, otp);
 
-		const emailTasks = to.map(async (email) => {
-			return await send(email, from, subject, html, text, files);
+		const res = await transport.sendMail({
+			to,
+			from: env.EMAIL_FROM,
+			subject,
+			html: render(<Email html={html} subject={subject} from={from} />),
+			text,
+			attachments: await Promise.all(
+				files.map(async (file) => ({
+					filename: file.name,
+					contentType: file.type,
+					content: Buffer.from(await file.arrayBuffer()),
+				}))
+			),
 		});
-
-		const results = await Promise.all(emailTasks);
 
 		await deleteOtp(from);
 
-		return results;
+		return res;
 	} catch (error: any) {
 		console.error('Error sending email:', error);
 		throw new Error(error.message ?? 'Error sending email');

@@ -129,7 +129,9 @@ const app = new Elysia()
 						};
 
 						if (success) {
-							await updateEmailCounts(data.map(({ email }) => email));
+							await updateEmailCounts(
+								data.accepted.map((email) => email as string)
+							);
 						}
 					},
 				}
