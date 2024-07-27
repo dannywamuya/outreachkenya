@@ -7,7 +7,15 @@ export const meta: MetaFunction = () => {
 		{
 			name: 'description',
 			content:
-				'ReachOutKenya aims to assist Kenyans in public participation and air their grievances to National and International Organisations',
+				'OutReachKenya aims to assist Kenyans in public participation and air their grievances to National and International Organisations',
+		},
+		{
+			name: 'twitter:image',
+			content: 'https://www.outreachkenya.com/flag2.jpg',
+		},
+		{
+			name: 'og:image',
+			content: 'https://www.outreachkenya.com/flag2.jpg',
 		},
 	];
 };
