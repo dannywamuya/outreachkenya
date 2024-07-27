@@ -63,7 +63,7 @@ export async function sendEmails({
 
 		const res = await transport.sendMail({
 			to,
-			from: env.EMAIL_FROM,
+			from: { name: 'OutreachKenya', address: env.EMAIL_FROM },
 			subject,
 			html: render(<Email html={html} subject={subject} from={from} />),
 			text,

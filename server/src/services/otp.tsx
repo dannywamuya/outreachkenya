@@ -45,7 +45,7 @@ export async function createOTP(email: string) {
 		}
 
 		await transport.sendMail({
-			from: env.EMAIL_FROM,
+			from: { name: 'OutreachKenya', address: env.EMAIL_FROM },
 			to: email,
 			subject: `Outreach OTP [${otp}]`,
 			text: getText(otp),
